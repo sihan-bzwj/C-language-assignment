@@ -1,47 +1,132 @@
-#define _CRT_SECURE_NO_WARNINGS // 允许使用不安全的函数（如 scanf）
+#define _CRT_SECURE_NO_WARNINGS// 防止scanf警告
 #include <stdio.h>
+#include <string.h>
 
-void bubble_sort_desc(int arr[], int n) {
-	for (int i = 0; i < n - 1; i++) {
-		for (int j = 0; j < n - i - 1; j++) {
-			if (arr[j] > arr[j + 1]) {
-				int temp = arr[j];
-				arr[j] = arr[j + 1];
-				arr[j + 1] = temp;
-			}
-		}
-	}
-}// 冒泡排序降序
+#define MAX 10      // 最多10个字符串
+#define LEN 100     // 每个字符串最大长度
+
+// 函数声明
+void print_original(char strs[][LEN], int n);
+void print_ascii(char strs[][LEN], int n);
+void print_by_length(char strs[][LEN], int n);
 
 int main() {
-	int m,n,arr1[250] = {0}, arr2[250] = {0}; 
-	
-	printf("Enter the number of elements in the first array: ");
-	scanf("%d", &m);
-	printf("Enter the elements of the first array: ");
-	for (int i = 0; i < m; i++) {
-		scanf("%d", &arr1[i]);
-	}
-	
-	printf("Enter the number of elements in the second array: ");
-	scanf("%d", &n);
-	printf("Enter the elements of the second array: ");
-	for (int i = 0; i < n; i++) {
-		scanf("%d", &arr2[i]);
-	}// 输入两个数组
-	
-	bubble_sort_desc(arr1, m);
-	bubble_sort_desc(arr2, n);// 进行排序
-	
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < m; j++) {
-			if (arr1[j] == arr2[i]) {
-				printf("the  same elements are: %d,first array index: %d,second array index: %d\n", arr1[j], j+1, i+1);
-			}
-		}
-	}// 输出相同元素及其索引
+    char strs[MAX][LEN];  // 存储字符串的二维数组
+    int count = 0;        // 实际读取的字符串数量
+    int choice;           // 用户选择
+    
+    // 1. 读取字符串
+    printf("请输入字符串（最多%d个，空行结束）：\n", MAX);
+    
+    while (count < MAX) {
+        printf("字符串%d：", count + 1);
+        
+        // 读取一行输入
+        if (fgets(strs[count], LEN, stdin) == NULL) {
+            break;  // 读到EOF
+        }
+        
+        // 移除换行符
+        strs[count][strlen(strs[count]) - 1] = '\0';
+        
+        // 如果输入空行，结束输入
+        if (strlen(strs[count]) == 0) {
+            break;
+        }
+        
+        count++;
+    }
+    
+    // 2. 菜单循环
+    do {
+        printf("\n===== 菜单 =====\n");
+        printf("1. 打印原始列表\n");
+        printf("2. 按ASCII顺序打印\n");
+        printf("3. 按长度顺序打印\n");
+        printf("4. 退出\n");
+        printf("请选择：");
+        scanf("%d", &choice);
+        getchar();  // 吃掉回车符
+        
+        switch (choice) {
+            case 1:
+                print_original(strs, count);
+                break;
+            case 2:
+                print_ascii(strs, count);
+                break;
+            case 3:
+                print_by_length(strs, count);
+                break;
+            case 4:
+                printf("再见！\n");
+                break;
+            default:
+                printf("无效选择！\n");
+        }
+    } while (choice != 4);
+    
+    getchar();// 等待用户按下回车
+	getchar();//清除输入缓冲区
+    return 0;
+}
 
-	getchar(); // 防止输入缓冲区溢出
-	getchar(); // 防止输入缓冲区溢出
-	return 0;
+// 1. 打印原始列表
+void print_original(char strs[][LEN], int n) {
+    printf("\n原始字符串列表：\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d. %s\n", i + 1, strs[i]);
+    }
+}
+
+// 2. 按ASCII顺序打印
+void print_ascii(char strs[][LEN], int n) {
+    // 创建副本，不修改原数组
+    char copy[MAX][LEN];
+    for (int i = 0; i < n; i++) {
+        strcpy(copy[i], strs[i]);
+    }
+    
+    // 简单的冒泡排序
+    char temp[LEN];
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - 1 - i; j++) {
+            if (strcmp(copy[j], copy[j + 1]) > 0) {
+                strcpy(temp, copy[j]);
+                strcpy(copy[j], copy[j + 1]);
+                strcpy(copy[j + 1], temp);
+            }
+        }
+    }
+    
+    printf("\n按ASCII顺序：\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d. %s\n", i + 1, copy[i]);
+    }
+}
+
+// 3. 按长度顺序打印
+void print_by_length(char strs[][LEN], int n) {
+    // 创建副本，不修改原数组
+    char copy[MAX][LEN];
+    for (int i = 0; i < n; i++) {
+        strcpy(copy[i], strs[i]);
+    }
+    
+    // 简单的冒泡排序（按长度）
+    char temp[LEN];
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - 1 - i; j++) {
+            if (strlen(copy[j]) > strlen(copy[j + 1])) {
+                strcpy(temp, copy[j]);
+                strcpy(copy[j], copy[j + 1]);
+                strcpy(copy[j + 1], temp);
+            }
+        }
+    }
+    
+    printf("\n按长度顺序：\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d. %s (长度：%zu)\n", i + 1, copy[i], strlen(copy[i]));
+    }
 }
