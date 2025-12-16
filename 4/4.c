@@ -1,31 +1,86 @@
-#define _CRT_SECURE_NO_WARNINGS// Disable security warnings for functions like strcpy
-#include <stdio.h>
-#include <string.h>
+#define _CRT_SECURE_NO_WARNINGS // Disable security warnings for functions like scanf in MSVC
+#include<stdio.h>
 
-void trimfmt(char *str) {
-	char* p = str;// Initialize pointer p to the start of the string
-		p += strlen(str) - 1;// Move pointer p to the end of the string
-		while (p>=strlen(str)&&*p == ' ') p--;// Move pointer p backwards while there are spaces
+struct Student {
+	int idnum;
+	char name[20];
+	int score;
+};
 
-		printf("'");
-		for (int i = 0; i < p-str+1; i++) {
-			printf("%c", str[i]);//输出每个字符并加单引号
+void sortByScore(struct Student stu[], int n) {
+	struct Student temp;
+	for (int i = 0; i < n - 1; i++) {
+		for (int j = 0; j < n - i - 1; j++) {
+			if (stu[j].score > stu[j + 1].score) {
+				temp = stu[j];
+				stu[j] = stu[j + 1];
+				stu[j + 1] = temp;
+			}
 		}
-		printf("'\n");
+	}
 }
 
+void writeStudentsToFile(struct Student stu[], int n) {
+	FILE* file = fopen("students.txt", "w");
+	if (file == NULL) {
+		printf("Error opening file!\n");
+		return;
+	}
+	printf("The students data is being written to students.txt...\n");
+	for (int i = 0; i < n; i++) {
+		fprintf(file, "ID: %d, Name: %s, Score: %d\n", stu[i].idnum, stu[i].name, stu[i].score);
+	}
+	fclose(file);
+}
 
-int main(){
-	printf("请输入一个字符串(以回车结束)：");
+void changeTheStudentScore(struct Student stu[], int n) {
+	int id, newScore;
+	printf("Enter student ID to change score: ");
+	scanf("%d", &id);
+	printf("Enter new score: ");
+	scanf("%d", &newScore);
+	for (int i = 0; i < n; i++) {
+		if (stu[i].idnum == id) {
+			stu[i].score = newScore;
+			break;
+		}
+	}
+}
 
-	char str[1000];
+void display() {
+	FILE* file = fopen("students.txt", "r");
+	if (file == NULL) {
+		printf("Error opening file!\n");
+		return;
+	}
 
-	fgets(str, sizeof(str), stdin);//读取字符串
-	str[strcspn(str, "\n")] = '\0';//去除换行符
+	printf("\nStudent Information from file:\n");
+	printf("==============================\n");
 
-	trimfmt(str);//去除字符串末尾空格
+	char line[100];
+	while (fgets(line, sizeof(line), file)) {
+		printf("%s", line);
+	}
 
-	getchar();//清除缓冲区
-	getchar();//清除缓冲区
+	fclose(file);
+	printf("==============================\n");
+}
+
+int main() {
+	struct Student stu[10];
+	int i = 0;
+
+	for (; i < 10; i++) {
+		printf("Enter ID, Name, and Score for student %d: ", i + 1);
+		if (!scanf(" %d %s %d", &stu[i].idnum, stu[i].name, &stu[i].score)) break;
+	}
+
+	sortByScore(stu, i);
+	writeStudentsToFile(stu, i);
+	changeTheStudentScore(stu, i);
+	display();
+
+	getchar();
+	getchar();
 	return 0;
 }
